@@ -1,3 +1,4 @@
+// Server.js
 const express = require('express');
 const http = require('http');
 const WebSocket = require('ws');
@@ -15,9 +16,9 @@ wss.on('connection', (ws) => {
   console.log('WebSocket connection established');
 
   ws.on('message', (message) => {
-    // Here you can parse the incoming data if it's JSON
     const data = JSON.parse(message);
     console.log('Data received:', data);
+
     // Broadcast data to all connected clients
     wss.clients.forEach((client) => {
       if (client.readyState === WebSocket.OPEN) {
