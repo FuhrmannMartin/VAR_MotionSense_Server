@@ -23,11 +23,14 @@ scene.add(lights.spotLight);
 scene.add(lights.pointLight);
 
 const world = new World(camera, scene);
+let pitch;
+let yaw;
+connectWebSocket();
 
 function animate(timestamp) {
     // Check if the plane is loaded and enough time has passed for the next frame
     if (world.plane && world.plane.isLoaded && (timestamp - lastFrameTime) >= interval) {
-        world.animate(); // Update the world
+        world.animate(pitch, yaw); // Update the world
         renderer.render(scene, camera); // Render the scene
         lastFrameTime = timestamp; // Update the last frame time
     }
@@ -45,3 +48,22 @@ window.addEventListener('resize', function () {
     camera.updateProjectionMatrix();
     console.log(window.innerWidth, window.innerHeight);
 });
+
+
+function connectWebSocket() {
+    const socket = new WebSocket("ws://localhost:3000");
+    socket.onmessage = (event) => {
+        const data = JSON.parse(event.data);
+        console.log('Data received:', data);
+
+        // Extract pitch, yaw, roll, and speed from the received data
+        const { rotX, rotY, rotZ, speed } = data;
+
+        // Enforce positive Z value to maintain consistency
+
+        pitch = ((Math.abs(rotZ)-Math.PI/2)/Math.PI/2)*-3;
+        yaw = rotX/6/Math.PI;
+
+        console.log(pitch, yaw);
+    };
+}

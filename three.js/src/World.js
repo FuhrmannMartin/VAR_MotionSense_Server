@@ -16,43 +16,13 @@ class World {
 
         // Initialize the plane
         this.plane = new Plane(this.scene);
-
-        // Track active keys for smooth control
-        this.activeKeys = {};
-
-        // Event listeners for keyboard controls
-        document.addEventListener('keydown', (event) => {
-            this.activeKeys[event.key] = true;
-        });
-
-        document.addEventListener('keyup', (event) => {
-            this.activeKeys[event.key] = false;
-        });
     }
 
-    animate() {
+    animate(pitch, yaw) {
         if (this.plane && this.plane.isLoaded) {
-            // Handle multiple key presses
-            if (this.activeKeys['ArrowUp']) {
-                this.plane.pitchUp();
-            }
-            if (this.activeKeys['ArrowDown']) {
-                this.plane.pitchDown();
-            }
-            if (this.activeKeys['ArrowLeft']) {
-                this.plane.yawLeft();
-            }
-            if (this.activeKeys['ArrowRight']) {
-                this.plane.yawRight();
-            }
+            this.plane.pitch_fun(pitch);
+            this.plane.yaw_fun(yaw);
 
-            // Reset pitch and yaw if keys are not pressed
-            if (!this.activeKeys['ArrowUp'] && !this.activeKeys['ArrowDown']) {
-                this.plane.releasePitch();
-            }
-            if (!this.activeKeys['ArrowLeft'] && !this.activeKeys['ArrowRight']) {
-                this.plane.releaseYaw();
-            }
 
             // Update plane animation
             this.plane.animate();
@@ -69,7 +39,7 @@ class World {
     }
 
     addAirRings() {
-        const numRings = 10; // Anzahl der Ringe
+        const numRings = 100; // Anzahl der Ringe
         const ringRadius = 2; // Radius der Ringe
         const ringTube = 0.1; // Dicke des Rings
 
@@ -115,7 +85,7 @@ class World {
 }
 
 function addGroundPlane(scene) {
-    const planeGeometry = new THREE.PlaneGeometry(500, 500);
+    const planeGeometry = new THREE.PlaneGeometry(50000, 50000);
     const planeMaterial = new THREE.MeshStandardMaterial({ color: 0xaaaaaa, side: THREE.DoubleSide });
 
     const groundPlane = new THREE.Mesh(planeGeometry, planeMaterial);

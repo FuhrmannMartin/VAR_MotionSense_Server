@@ -15,6 +15,7 @@ class Plane {
         this.roll = 0;
         this.rollTo = 0;
         this.yaw = 0;
+        this.yawTo = 0;
         this.pitch = 0;
         this.pitchTo = 0;
         this.direction = new THREE.Vector3(0, 0, 1); // Start by facing forward in the Z direction
@@ -25,37 +26,19 @@ class Plane {
     }
 
     // Pitch (x-axis)
-    pitchDown() {
-        this.pitchTo = -1;
-    }
-
-    pitchUp() {
-        this.pitchTo = 1;
-    }
-
-    releasePitch() {
-        this.pitchTo = 0;
+    pitch_fun(pitch) {
+        this.pitch = pitch;
     }
 
     // Yaw (y-axis) with PT1 filter behavior
-    yawLeft() {
-        this.yaw += yawSpeed;
-        this.rollTo = -1; // Applying a slight roll during yaw for a realistic banked turn
-    }
-
-    yawRight() {
-        this.yaw -= yawSpeed;
-        this.rollTo = 1; // Applying a slight roll during yaw for a realistic banked turn
-    }
-
-    releaseYaw() {
-        this.rollTo = 0;
+    yaw_fun(yaw) {
+        this.yaw += yaw;
+        this.rollTo = -yaw*5*Math.PI;
     }
 
     animate() {
         if (this.plane && this.isLoaded) {
             // Smoothly adjust pitch and roll towards their target values
-            this.pitch += (this.pitchTo - this.pitch) * pitchSpeed;
             this.roll += (this.rollTo - this.roll) * rollSpeed;
     
             // Apply the calculated rotation to the plane's visual orientation using Euler angles
