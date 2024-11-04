@@ -18,10 +18,11 @@ class World {
         this.plane = new Plane(this.scene);
     }
 
-    animate(pitch, yaw) {
+    animate(pitch, yaw, speed) {
         if (this.plane && this.plane.isLoaded) {
             this.plane.pitch_fun(pitch);
             this.plane.yaw_fun(yaw);
+            this.plane.speed_fun(speed);
 
 
             // Update plane animation

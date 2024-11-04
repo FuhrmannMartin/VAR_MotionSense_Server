@@ -25,12 +25,13 @@ scene.add(lights.pointLight);
 const world = new World(camera, scene);
 let pitch;
 let yaw;
+let finalspeed;
 connectWebSocket();
 
 function animate(timestamp) {
     // Check if the plane is loaded and enough time has passed for the next frame
     if (world.plane && world.plane.isLoaded && (timestamp - lastFrameTime) >= interval) {
-        world.animate(pitch, yaw); // Update the world
+        world.animate(pitch, yaw, finalspeed); // Update the world
         renderer.render(scene, camera); // Render the scene
         lastFrameTime = timestamp; // Update the last frame time
     }
@@ -63,7 +64,8 @@ function connectWebSocket() {
 
         pitch = ((Math.abs(rotZ)-Math.PI/2)/Math.PI/2)*-3;
         yaw = rotX/6/Math.PI;
+        finalspeed = 0.5 + speed * 2;
 
-        console.log(pitch, yaw);
+        console.log(pitch, yaw, finalspeed);
     };
 }

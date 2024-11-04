@@ -1,11 +1,11 @@
 import * as THREE from 'three';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 
-const pitchSpeed = 0.03;
+const pitchSpeed = 0.1;
 const rollSpeed = 0.03;
 const yawSpeed = 0.03;
 const propellerSpeed = 5;
-const forwardSpeed = 1;
+const forwardSpeed = 0.01;
 
 class Plane {
     constructor(scene) {
@@ -19,6 +19,8 @@ class Plane {
         this.pitch = 0;
         this.pitchTo = 0;
         this.direction = new THREE.Vector3(0, 0, 1); // Start by facing forward in the Z direction
+        this.speed = 1;
+        this.speedTo = 0;
         
         this.isLoaded = false;
 
@@ -27,7 +29,7 @@ class Plane {
 
     // Pitch (x-axis)
     pitch_fun(pitch) {
-        this.pitch = pitch;
+        this.pitchTo = pitch;
     }
 
     // Yaw (y-axis) with PT1 filter behavior
@@ -36,10 +38,16 @@ class Plane {
         this.rollTo = -yaw*5*Math.PI;
     }
 
+    speed_fun(speed) {
+        this.speedTo = speed;
+    }
+
     animate() {
         if (this.plane && this.isLoaded) {
             // Smoothly adjust pitch and roll towards their target values
             this.roll += (this.rollTo - this.roll) * rollSpeed;
+            this.pitch += (this.pitchTo - this.pitch) * pitchSpeed;
+            this.speed += (this.speedTo - this.speed) * forwardSpeed;
     
             // Apply the calculated rotation to the plane's visual orientation using Euler angles
             this.plane.rotation.set(this.pitch, this.yaw, this.roll, 'YXZ'); // Use Y (yaw), then X (pitch), then Z (roll)
@@ -49,7 +57,7 @@ class Plane {
             this.direction.applyEuler(this.plane.rotation);
     
             // Move the plane forward in the current direction
-            const movement = this.direction.clone().multiplyScalar(forwardSpeed);
+            const movement = this.direction.clone().multiplyScalar(this.speed);
             this.plane.position.add(movement);
     
             // Rotate the propeller based on speed
@@ -74,7 +82,7 @@ class Plane {
 
                     this.plane = gltf.scene;
                     this.plane.scale.set(1, 1, 1);
-                    this.plane.position.y = 1;
+                    this.plane.position.y = 20;
 
                     this.scene.add(this.plane); // Add the model to the scene
 
