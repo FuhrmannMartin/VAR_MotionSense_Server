@@ -27,6 +27,7 @@ let pitch;
 let yaw;
 let finalspeed;
 connectWebSocket();
+world.startAudio();
 
 function animate(timestamp) {
     // Check if the plane is loaded and enough time has passed for the next frame
