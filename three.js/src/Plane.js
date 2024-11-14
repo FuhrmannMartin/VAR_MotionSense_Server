@@ -91,6 +91,9 @@ class Plane {
                             this.propeller = child;
                             console.log("Propeller object found!");
                         }
+                        if (child.isMesh) {
+                            child.castShadow = true;
+                        }
                     });
                     this.isLoaded = true;
 
