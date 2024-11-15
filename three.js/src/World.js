@@ -8,6 +8,7 @@ class World {
         this.scene = scene;
         this.camera = camera;
         this.score = 0;
+        this.totalStars = 10; // Total stars to collect for winning
         this.soundEnabled = true;
         this.audioInitialized = false;
         this.gameOverTriggered = false;  // Flag to prevent multiple game overs
@@ -36,20 +37,19 @@ class World {
     // World.js - Inside the startAudio function
     startAudio() {
         if (!this.audioInitialized) {
-            const listener = new THREE.AudioListener();
-            this.camera.add(listener);
+            this.listener = new THREE.AudioListener(); // Attach a reusable AudioListener
+            this.camera.add(this.listener); // Add listener to the camera
 
             const audioLoader = new THREE.AudioLoader();
 
-            // Load scoring sound
-            this.scoreSound = new THREE.Audio(listener);
+            // Preload scoring sound buffer
+            this.starSoundBuffer = null;
             audioLoader.load('./assets/audio/mixkit-retro-game-notification-212.mp3', (buffer) => {
-                this.scoreSound.setBuffer(buffer);
-                this.scoreSound.setVolume(0.5);
+                this.starSoundBuffer = buffer;
             });
 
             // Load engine sound
-            this.engineSound = new THREE.Audio(listener);
+            this.engineSound = new THREE.Audio(this.listener);
             audioLoader.load('./assets/audio/lawn-27600.mp3', (buffer) => {
                 this.engineSound.setBuffer(buffer);
                 this.engineSound.setLoop(true);
@@ -58,15 +58,24 @@ class World {
             });
 
             // Load explosion sound
-            this.explosionSound = new THREE.Audio(listener);
+            this.explosionSound = new THREE.Audio(this.listener);
             audioLoader.load('./assets/audio/mixkit-arcade-game-explosion-2759.wav', (buffer) => {
                 this.explosionSound.setBuffer(buffer);
-                this.explosionSound.setVolume(0.8);  // Set volume as desired
+                this.explosionSound.setVolume(0.8);
+            });
+
+            // Load winning sound
+            this.winningSound = new THREE.Audio(this.listener);
+            audioLoader.load('./assets/audio/mixkit-video-game-win-2016.wav', (buffer) => {
+                this.winningSound.setBuffer(buffer);
+                this.winningSound.setVolume(0.8);
             });
 
             this.audioInitialized = true;
         }
     }
+
+
 
     // Update engine sound based on speed
     updateEngineSound(speed) {
@@ -119,7 +128,6 @@ class World {
             const starBox = new THREE.Box3().setFromObject(star);
             if (planeBox.intersectsBox(starBox)) {
                 this.incrementScore();
-                this.scoreSound.play();
                 this.scene.remove(star);
                 return false;
             }
@@ -135,10 +143,67 @@ class World {
         });
     }
 
-    // Increment score and update display
     incrementScore() {
         this.score++;
-        document.getElementById('score').innerText = `Score: ${this.score}`;
+        document.getElementById('score').innerText = `Stars: ${this.score}/${this.totalStars}`;
+
+        // Play star sound using preloaded buffer
+        if (this.soundEnabled && this.starSoundBuffer) {
+            const starSound = new THREE.Audio(this.listener); // Reuse the listener
+            starSound.setBuffer(this.starSoundBuffer);
+            starSound.setVolume(0.5);
+            starSound.play();
+        }
+
+        // Check if player has won
+        if (this.score >= this.totalStars) {
+            this.triggerWin();
+        }
+    }
+
+
+
+
+
+
+    // Trigger the winning sequence
+    triggerWin() {
+        // Stop the game
+        this.gameOverTriggered = true;
+
+        // Calculate elapsed time
+        const elapsedTime = ((Date.now() - this.startTime) / 1000).toFixed(2);
+
+        // Play winning sound
+        if (this.winningSound && this.soundEnabled) {
+            this.winningSound.play();
+        }
+
+        // Create and display the winning screen
+        const winScreen = document.createElement('div');
+        winScreen.id = 'winScreen';
+        winScreen.style.position = 'fixed';
+        winScreen.style.top = 0;
+        winScreen.style.left = 0;
+        winScreen.style.width = '100%';
+        winScreen.style.height = '100%';
+        winScreen.style.backgroundColor = 'rgba(0, 0, 0, 0.8)';
+        winScreen.style.display = 'flex';
+        winScreen.style.flexDirection = 'column';
+        winScreen.style.alignItems = 'center';
+        winScreen.style.justifyContent = 'center';
+        winScreen.style.color = 'white';
+        winScreen.style.fontFamily = 'Arial, sans-serif';
+        winScreen.style.zIndex = 2;
+
+        winScreen.innerHTML = `
+            <h1>Congratulations!</h1>
+            <p>You collected all ${this.totalStars} stars!</p>
+            <p>Time: ${elapsedTime} seconds</p>
+            <button onclick="window.location.reload()">Restart Game</button>
+        `;
+
+        document.body.appendChild(winScreen);
     }
 
 
