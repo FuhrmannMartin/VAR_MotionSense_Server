@@ -178,6 +178,7 @@ class World {
         if (this.winningSound && this.soundEnabled) {
             this.winningSound.play();
         }
+        if (this.engineSound) this.engineSound.stop();
 
         // Create and display the winning screen
         const winScreen = document.createElement('div');
